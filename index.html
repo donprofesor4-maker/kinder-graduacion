@@ -762,8 +762,10 @@
     return SPANISH_CODES[letter] || `Key${letter}`;
   }
 
-  function makeCombo(mods, code, displayParts, pts) {
-    return { mods, code, displayParts, pts };
+  function makeCombo(mods, code, displayParts, pts, expectedKey) {
+    const c = { mods, code, displayParts, pts };
+    if (expectedKey) c.expectedKey = expectedKey;
+    return c;
   }
 
   function generateCombo(types) {
@@ -835,10 +837,20 @@
       }
       case 'ctrl_alt_number': {
         const num = pick(NUMBERS);
+        const sym = ALTGR_SYMBOLS[num];
+        if (sym) {
+          return makeCombo(
+            { ctrl: true, shift: false, alt: true },
+            null,
+            ['AltGr', '+', sym],
+            30,
+            sym
+          );
+        }
         return makeCombo(
           { ctrl: true, shift: false, alt: true },
           `Digit${num}`,
-          ['AltGr', '+', ALTGR_SYMBOLS[num] || num],
+          ['AltGr', '+', num],
           30
         );
       }
@@ -873,18 +885,42 @@
         const num = pick(NUMBERS);
         const modType = pick(['ctrl_shift', 'ctrl_alt', 'shift_alt']);
         const mods = { ctrl: modType.includes('ctrl'), shift: modType.includes('shift'), alt: modType.includes('alt') };
-        let display;
-        if (modType === 'ctrl_shift') display = ['Ctrl', '+', 'Mayús', '+', num];
-        else if (modType === 'ctrl_alt') display = ['AltGr', '+', ALTGR_SYMBOLS[num] || num];
-        else display = ['Mayús', '+', 'Alt', '+', SHIFT_SYMBOLS[num]];
-        return makeCombo(mods, `Digit${num}`, display, 30);
+        let display, code, expectedKey;
+        if (modType === 'ctrl_shift') {
+          display = ['Ctrl', '+', 'Mayús', '+', num];
+          code = `Digit${num}`;
+        } else if (modType === 'ctrl_alt') {
+          const sym = ALTGR_SYMBOLS[num];
+          if (sym) {
+            display = ['AltGr', '+', sym];
+            code = null;
+            expectedKey = sym;
+          } else {
+            display = ['AltGr', '+', num];
+            code = `Digit${num}`;
+          }
+        } else {
+          display = ['Mayús', '+', 'Alt', '+', SHIFT_SYMBOLS[num]];
+          code = `Digit${num}`;
+        }
+        return makeCombo(mods, code, display, 30, expectedKey);
       }
       case 'ctrl_alt_shift_number': {
         const num = pick(NUMBERS);
+        const sym = ALTGR_SYMBOLS[num];
+        if (sym) {
+          return makeCombo(
+            { ctrl: true, shift: true, alt: true },
+            null,
+            ['Ctrl', '+', 'Mayús', '+', 'Alt', '+', sym],
+            40,
+            sym
+          );
+        }
         return makeCombo(
           { ctrl: true, shift: true, alt: true },
           `Digit${num}`,
-          ['Ctrl', '+', 'Mayús', '+', 'Alt', '+', ALTGR_SYMBOLS[num] || num],
+          ['Ctrl', '+', 'Mayús', '+', 'Alt', '+', num],
           40
         );
       }
@@ -1079,9 +1115,17 @@
     const shiftMatch = e.shiftKey === mods.shift;
     const altMatch = e.altKey === mods.alt;
     const metaCheck = !e.metaKey; // meta should NOT be pressed
-    const codeMatch = e.code === combo.code;
 
-    if (ctrlMatch && shiftMatch && altMatch && metaCheck && codeMatch) {
+    let keyMatch;
+    if (combo.expectedKey) {
+      keyMatch = e.key === combo.expectedKey;
+    } else if (combo.code) {
+      keyMatch = e.code === combo.code;
+    } else {
+      keyMatch = false;
+    }
+
+    if (ctrlMatch && shiftMatch && altMatch && metaCheck && keyMatch) {
       handleCorrect(e);
     } else {
       handleWrong(e);
