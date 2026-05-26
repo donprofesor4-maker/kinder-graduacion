@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Aventura de las Verduras</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+    background: linear-gradient(135deg, #f0f8e8 0%, #d4edda 50%, #c3e6cb 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .game-container {
+    background: white;
+    border-radius: 40px;
+    padding: 30px;
+    max-width: 700px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 0 0 4px #8fbc8f;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .game-container::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 8px;
+    background: linear-gradient(90deg, #f44336, #ff9800, #ffeb3b, #4caf50, #2196f3, #9c27b0);
+  }
+
+  h1 {
+    font-size: 2.2em;
+    color: #2e7d32;
+    margin: 10px 0 5px;
+    text-shadow: 2px 2px 0 #c8e6c9;
+  }
+
+  .subtitle {
+    color: #5d8a5d;
+    font-size: 1em;
+    margin-bottom: 20px;
+  }
+
+  .screen { display: none; }
+
+  .screen.active { display: block; }
+
+  /* === WELCOME SCREEN === */
+  .welcome-veg {
+    font-size: 5em;
+    margin: 15px 0;
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  .instructions {
+    background: #e8f5e9;
+    border-radius: 20px;
+    padding: 20px;
+    margin: 15px 0;
+    text-align: left;
+    font-size: 1.05em;
+    line-height: 1.6;
+    color: #1b5e20;
+  }
+
+  .instructions li { margin: 8px 0; list-style: none; }
+  .instructions li::before { content: '🥬 '; }
+
+  .btn {
+    background: #4caf50;
+    color: white;
+    border: none;
+    padding: 18px 50px;
+    font-size: 1.4em;
+    font-family: inherit;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 6px 0 #2e7d32;
+    margin: 10px 0;
+    font-weight: bold;
+  }
+
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #2e7d32; }
+  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #2e7d32; }
+
+  .btn-secondary {
+    background: #ff9800;
+    box-shadow: 0 6px 0 #e65100;
+  }
+
+  .btn-secondary:hover { box-shadow: 0 8px 0 #e65100; }
+  .btn-secondary:active { transform: translateY(4px); box-shadow: 0 2px 0 #e65100; }
+
+  /* === QUIZ SCREEN === */
+  .progress-bar {
+    background: #e0e0e0;
+    border-radius: 20px;
+    height: 14px;
+    margin: 10px 0 20px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #66bb6a, #43a047);
+    border-radius: 20px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  .score-display {
+    font-size: 1.2em;
+    color: #2e7d32;
+    font-weight: bold;
+    margin: 5px 0;
+  }
+
+  .question-number {
+    color: #666;
+    font-size: 0.95em;
+  }
+
+  .vegetable-display {
+    background: #f1f8e9;
+    border-radius: 30px;
+    padding: 25px;
+    margin: 15px 0;
+    border: 3px dashed #a5d6a7;
+  }
+
+  .veg-emoji {
+    font-size: 6em;
+    display: block;
+    margin-bottom: 5px;
+    transition: transform 0.3s;
+  }
+
+  .veg-emoji.pop { animation: pop 0.4s ease; }
+
+  @keyframes pop {
+    0% { transform: scale(0.3); opacity: 0; }
+    70% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .veg-name {
+    font-size: 1.8em;
+    color: #2e7d32;
+    font-weight: bold;
+  }
+
+  .question-text {
+    font-size: 1.3em;
+    color: #33691e;
+    margin: 15px 0;
+  }
+
+  .options {
+    display: grid;
+    gap: 12px;
+    margin: 15px 0;
+  }
+
+  .option-btn {
+    background: #f5f5f5;
+    border: 3px solid #c8e6c9;
+    padding: 16px 20px;
+    font-size: 1.15em;
+    font-family: inherit;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #1b5e20;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    background: #e8f5e9;
+    border-color: #66bb6a;
+    transform: translateX(5px);
+  }
+
+  .option-btn .opt-letter {
+    background: #a5d6a7;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1em;
+    flex-shrink: 0;
+  }
+
+  .option-btn.correct {
+    background: #c8e6c9;
+    border-color: #43a047;
+    animation: correctPulse 0.5s ease;
+  }
+
+  .option-btn.correct .opt-letter { background: #43a047; }
+
+  .option-btn.incorrect {
+    background: #ffcdd2;
+    border-color: #e53935;
+    animation: shake 0.4s ease;
+  }
+
+  .option-btn.incorrect .opt-letter { background: #e53935; }
+
+  .option-btn.reveal {
+    background: #c8e6c9;
+    border-color: #43a047;
+  }
+
+  .option-btn.reveal .opt-letter { background: #43a047; }
+
+  .option-btn:disabled { cursor: default; opacity: 0.85; }
+
+  @keyframes correctPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+
+  /* === FEEDBACK === */
+  .feedback {
+    padding: 18px;
+    border-radius: 20px;
+    margin: 10px 0;
+    font-size: 1.1em;
+    font-weight: bold;
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .feedback.correct-fb {
+    display: block;
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 2px solid #81c784;
+  }
+
+  .feedback.incorrect-fb {
+    display: block;
+    background: #fff3e0;
+    color: #e65100;
+    border: 2px solid #ffcc80;
+  }
+
+  .feedback .fb-icon { font-size: 2em; display: block; margin-bottom: 5px; }
+
+  .next-btn {
+    background: #43a047;
+    color: white;
+    border: none;
+    padding: 14px 40px;
+    font-size: 1.2em;
+    font-family: inherit;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 0 #2e7d32;
+    margin: 10px 0;
+    font-weight: bold;
+    display: none;
+  }
+
+  .next-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #2e7d32; }
+  .next-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #2e7d32; }
+
+  /* === RESULT SCREEN === */
+  .result-icon { font-size: 6em; margin: 10px 0; }
+
+  .result-title {
+    font-size: 2em;
+    color: #2e7d32;
+    margin: 10px 0;
+  }
+
+  .result-score {
+    font-size: 3em;
+    color: #1b5e20;
+    font-weight: bold;
+    margin: 10px 0;
+  }
+
+  .result-msg {
+    font-size: 1.2em;
+    color: #555;
+    margin: 10px 0 20px;
+  }
+
+  .stars { font-size: 2.5em; margin: 10px 0; letter-spacing: 8px; }
+
+  .result-veg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
+  }
+
+  .result-veg-card {
+    background: #f1f8e9;
+    border-radius: 15px;
+    padding: 12px;
+    border: 2px solid #c8e6c9;
+  }
+
+  .result-veg-card .rv-emoji { font-size: 2em; }
+  .result-veg-card .rv-name { font-size: 0.9em; color: #2e7d32; font-weight: bold; }
+  .result-veg-card .rv-benefit { font-size: 0.8em; color: #666; }
+
+  /* === FLOATING DECORATIONS === */
+  .floating-veg {
+    position: fixed;
+    font-size: 2em;
+    opacity: 0.15;
+    pointer-events: none;
+    animation: floatAround 20s infinite linear;
+    z-index: -1;
+  }
+
+  @keyframes floatAround {
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-30px) rotate(180deg); }
+    100% { transform: translateY(0) rotate(360deg); }
+  }
+
+  @media (max-width: 500px) {
+    .game-container { padding: 20px; }
+    h1 { font-size: 1.6em; }
+    .veg-emoji { font-size: 4em; }
+    .veg-name { font-size: 1.4em; }
+    .options { gap: 10px; }
+    .option-btn { padding: 12px 16px; font-size: 1em; }
+    .btn { padding: 14px 35px; font-size: 1.2em; }
+  }
+
+  .confetti-container {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 100;
+    overflow: hidden;
+  }
+
+  .confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    animation: confettiFall linear forwards;
+  }
+
+  @keyframes confettiFall {
+    to {
+      transform: translateY(110vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="floating-veg" style="top:10%;left:5%;animation-duration:18s;">🥕</div>
+<div class="floating-veg" style="top:70%;left:90%;animation-duration:22s;animation-delay:-5s;">🥦</div>
+<div class="floating-veg" style="top:40%;left:95%;animation-duration:25s;animation-delay:-10s;">🍅</div>
+<div class="floating-veg" style="top:80%;left:2%;animation-duration:20s;animation-delay:-3s;">🥬</div>
+<div class="floating-veg" style="top:20%;left:50%;animation-duration:28s;animation-delay:-8s;">🌽</div>
+
+<div class="game-container" id="app">
+  <!-- WELCOME -->
+  <div class="screen active" id="welcomeScreen">
+    <div class="welcome-veg">🥗</div>
+    <h1>🌿 La Aventura de las Verduras 🌿</h1>
+    <p class="subtitle">¡Descubre lo que las verduras hacen por ti!</p>
+
+    <div class="instructions">
+      <li>Aprende qué beneficios te dan las verduras</li>
+      <li>Responde correctamente para ganar puntos</li>
+      <li>¡Consigue todas las estrellas al final!</li>
+    </div>
+
+    <button class="btn" onclick="startGame()">¡Comenzar juego! 🚀</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="screen" id="quizScreen">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="score-display">⭐ <span id="scoreDisplay">0</span> / <span id="totalQuestions">8</span></div>
+    <div class="question-number" id="questionNumber">Pregunta 1 de 8</div>
+
+    <div class="vegetable-display">
+      <span class="veg-emoji" id="vegEmoji">🥕</span>
+      <div class="veg-name" id="vegName">Zanahoria</div>
+    </div>
+
+    <div class="question-text" id="questionText">¿Qué nos aporta esta verdura?</div>
+
+    <div class="options" id="optionsContainer">
+      <button class="option-btn" data-index="0" onclick="selectOption(0)">
+        <span class="opt-letter">A</span>
+        <span id="optText0">Opción 1</span>
+      </button>
+      <button class="option-btn" data-index="1" onclick="selectOption(1)">
+        <span class="opt-letter">B</span>
+        <span id="optText1">Opción 2</span>
+      </button>
+      <button class="option-btn" data-index="2" onclick="selectOption(2)">
+        <span class="opt-letter">C</span>
+        <span id="optText2">Opción 3</span>
+      </button>
+      <button class="option-btn" data-index="3" onclick="selectOption(3)">
+        <span class="opt-letter">D</span>
+        <span id="optText3">Opción 4</span>
+      </button>
+    </div>
+
+    <div class="feedback" id="feedback">
+      <span class="fb-icon" id="fbIcon">✅</span>
+      <span id="fbText"></span>
+    </div>
+
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Siguiente ➡️</button>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="resultScreen">
+    <div class="result-icon" id="resultIcon">🏆</div>
+    <div class="result-title" id="resultTitle">¡Muy bien!</div>
+    <div class="stars" id="starsDisplay">⭐⭐⭐</div>
+    <div class="result-score" id="resultScore">8 / 8</div>
+    <div class="result-msg" id="resultMsg">¡Eres un experto en verduras!</div>
+
+    <div class="result-veg-grid" id="resultGrid"></div>
+
+    <button class="btn" onclick="startGame()">🔄 Jugar de nuevo</button>
+    <button class="btn btn-secondary" onclick="showWelcome()">🏠 Menú principal</button>
+  </div>
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+const questions = [
+  {
+    emoji: '🥕',
+    name: 'Zanahoria',
+    question: '¿Qué nos aporta la zanahoria?',
+    options: ['Ayuda a ver mejor (Vitamina A)', 'Da mucha energia', 'Fortalece los huesos', 'Ayuda a crecer el cabello'],
+    correct: 0,
+    benefit: 'Vitamina A — ¡para ver como un lince!'
+  },
+  {
+    emoji: '🥦',
+    name: 'Brócoli',
+    question: '¿Qué nos aporta el brócoli?',
+    options: ['Piel más suave', 'Huesos fuertes (Calcio)', 'Correr más rápido', 'Dormir profundamente'],
+    correct: 1,
+    benefit: 'Calcio — ¡huesos de acero!'
+  },
+  {
+    emoji: '🥬',
+    name: 'Espinaca',
+    question: '¿Qué nos aporta la espinaca?',
+    options: ['Dientes blancos', 'Oídos más finos', 'Fuerza y energía (Hierro)', 'Pestañas largas'],
+    correct: 2,
+    benefit: 'Hierro — ¡fuerza de superhéroe!'
+  },
+  {
+    emoji: '🍅',
+    name: 'Tomate',
+    question: '¿Qué nos aporta el tomate?',
+    options: ['Protege el corazón', 'Hace estornudar', 'Da calor en invierno', 'Pinta la piel de rojo'],
+    correct: 0,
+    benefit: 'Licopeno — ¡corazón saludable!'
+  },
+  {
+    emoji: '🌽',
+    name: 'Elote / Maíz',
+    question: '¿Qué nos aporta el elote?',
+    options: ['Hace volar', 'Da energía (Carbohidratos)', 'Enfría la boca', 'Pinta el pelo de amarillo'],
+    correct: 1,
+    benefit: 'Carbohidratos — ¡energía para jugar todo el día!'
+  },
+  {
+    emoji: '🫑',
+    name: 'Pimiento',
+    question: '¿Qué nos aporta el pimiento?',
+    options: ['Hace reír más', 'Protege de resfriados (Vitamina C)', 'Da sueño', 'Pone la piel verde'],
+    correct: 1,
+    benefit: 'Vitamina C — ¡adiós resfriados!'
+  },
+  {
+    emoji: '🎃',
+    name: 'Calabaza',
+    question: '¿Qué nos aporta la calabaza?',
+    options: ['Pies más grandes', 'Cuida la piel (Vitamina A)', 'Hace brillar los ojos', 'Da más memoria'],
+    correct: 1,
+    benefit: 'Vitamina A — ¡piel radiante!'
+  },
+  {
+    emoji: '🫛',
+    name: 'Chícharo',
+    question: '¿Qué nos aporta el chícharo?',
+    options: ['Hace saltar alto', 'Ayuda a crecer fuerte (Proteína)', 'Da frío en verano', 'Pone las uñas verdes'],
+    correct: 1,
+    benefit: 'Proteína vegetal — ¡para crecer fuerte!'
+  }
+];
+
+let currentQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let answered = false;
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showWelcome() {
+  showScreen('welcomeScreen');
+}
+
+function startGame() {
+  currentQuestions = shuffle([...questions]);
+  currentIndex = 0;
+  score = 0;
+  answered = false;
+  document.getElementById('totalQuestions').textContent = currentQuestions.length;
+  showScreen('quizScreen');
+  showQuestion();
+}
+
+function showQuestion() {
+  answered = false;
+  const q = currentQuestions[currentIndex];
+
+  const emojiEl = document.getElementById('vegEmoji');
+  emojiEl.textContent = q.emoji;
+  emojiEl.className = 'veg-emoji';
+  void emojiEl.offsetWidth;
+  emojiEl.classList.add('pop');
+
+  document.getElementById('vegName').textContent = q.name;
+  document.getElementById('questionText').textContent = q.question;
+  document.getElementById('questionNumber').textContent = `Pregunta ${currentIndex + 1} de ${currentQuestions.length}`;
+
+  const shuffledOptions = shuffle([...q.options]);
+  q.shuffledOptions = shuffledOptions;
+  q.correctShuffled = shuffledOptions.indexOf(q.options[q.correct]);
+
+  const letters = ['A', 'B', 'C', 'D'];
+  for (let i = 0; i < 4; i++) {
+    const btn = document.querySelectorAll('.option-btn')[i];
+    document.getElementById(`optText${i}`).textContent = shuffledOptions[i];
+    btn.querySelector('.opt-letter').textContent = letters[i];
+    btn.className = 'option-btn';
+    btn.disabled = false;
+  }
+
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').style.display = 'none';
+  document.getElementById('scoreDisplay').textContent = score;
+
+  const progress = ((currentIndex) / currentQuestions.length) * 100;
+  document.getElementById('progressFill').style.width = `${progress}%`;
+}
+
+function selectOption(index) {
+  if (answered) return;
+  answered = true;
+
+  const q = currentQuestions[currentIndex];
+  const btns = document.querySelectorAll('.option-btn');
+
+  btns.forEach(b => b.disabled = true);
+
+  const isCorrect = index === q.correctShuffled;
+
+  btns[index].classList.add(isCorrect ? 'correct' : 'incorrect');
+  btns[q.correctShuffled].classList.add('correct');
+
+  const feedback = document.getElementById('feedback');
+  const fbIcon = document.getElementById('fbIcon');
+  const fbText = document.getElementById('fbText');
+
+  if (isCorrect) {
+    score++;
+    feedback.className = 'feedback correct-fb';
+    fbIcon.textContent = '🎉';
+    fbText.textContent = `¡Correcto! ${q.benefit}`;
+  } else {
+    feedback.className = 'feedback incorrect-fb';
+    fbIcon.textContent = '💪';
+    const selectedText = q.shuffledOptions[index];
+    fbText.textContent = `¡Casi! "${selectedText}" no es. ${q.benefit}`;
+  }
+
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  document.getElementById('nextBtn').textContent =
+    currentIndex < currentQuestions.length - 1 ? 'Siguiente ➡️' : 'Ver resultado 🏆';
+}
+
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex >= currentQuestions.length) {
+    showResult();
+  } else {
+    showQuestion();
+  }
+}
+
+function showResult() {
+  showScreen('resultScreen');
+  document.getElementById('progressFill').style.width = '100%';
+
+  const total = currentQuestions.length;
+  const percent = score / total;
+  const resultIcon = document.getElementById('resultIcon');
+  const resultTitle = document.getElementById('resultTitle');
+  const starsDisplay = document.getElementById('starsDisplay');
+  const resultMsg = document.getElementById('resultMsg');
+
+  if (percent === 1) {
+    resultIcon.textContent = '🏆';
+    resultTitle.textContent = '¡Perfecto!';
+    starsDisplay.textContent = '⭐⭐⭐';
+    resultMsg.textContent = '¡Eres un experto en verduras! Sabes todo lo que nos aportan.';
+    launchConfetti();
+  } else if (percent >= 0.75) {
+    resultIcon.textContent = '🥇';
+    resultTitle.textContent = '¡Muy bien!';
+    starsDisplay.textContent = '⭐⭐';
+    resultMsg.textContent = '¡Casi perfecto! Sigue aprendiendo sobre las verduras.';
+  } else if (percent >= 0.5) {
+    resultIcon.textContent = '🥈';
+    resultTitle.textContent = '¡Buen intento!';
+    starsDisplay.textContent = '⭐';
+    resultMsg.textContent = 'Sigue practicando, ¡las verduras son tus amigas!';
+  } else {
+    resultIcon.textContent = '🌱';
+    resultTitle.textContent = '¡Sigue intentando!';
+    starsDisplay.textContent = '☆';
+    resultMsg.textContent = 'Vuelve a jugar para aprender más sobre las verduras.';
+  }
+
+  document.getElementById('resultScore').textContent = `${score} de ${total}`;
+
+  const grid = document.getElementById('resultGrid');
+  grid.innerHTML = '';
+  currentQuestions.forEach(q => {
+    const card = document.createElement('div');
+    card.className = 'result-veg-card';
+    card.innerHTML = `
+      <div class="rv-emoji">${q.emoji}</div>
+      <div class="rv-name">${q.name}</div>
+      <div class="rv-benefit">${q.benefit}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function launchConfetti() {
+  const container = document.getElementById('confettiContainer');
+  container.innerHTML = '';
+  const colors = ['#f44336', '#e91e63', '#9c27b0', '#2196f3', '#4caf50', '#ffeb3b', '#ff9800'];
+  for (let i = 0; i < 80; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = Math.random() * 100 + '%';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.width = (Math.random() * 8 + 5) + 'px';
+    el.style.height = (Math.random() * 8 + 5) + 'px';
+    el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    el.style.animationDelay = (Math.random() * 2) + 's';
+    el.style.transform = `rotate(${Math.random() * 360}deg)`;
+    container.appendChild(el);
+  }
+  setTimeout(() => container.innerHTML = '', 6000);
+}
+</script>
+</body>
+</html>
