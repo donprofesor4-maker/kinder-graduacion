@@ -670,6 +670,7 @@
     <span>🟡 <span class="lk">Mayús</span> Mayúsculas (Shift)</span>
     <span>🟢 <span class="lk">Alt</span> Alt</span>
     <span>🩷 <span class="lk altgr-lk">AltGr</span> AltGr</span>
+    <span id="layoutName" style="margin-left:4px;font-size:11px;color:rgba(255,255,255,0.25);">Español</span>
   </div>
 
   <!-- Overlay (start / game over) -->
@@ -720,6 +721,10 @@
       <input class="token-input" id="tokenInput" placeholder="github_pat_..." autocomplete="off" spellcheck="false">
       <button class="btn-save-score" id="saveTokenBtn" style="margin-top:8px;">💾 Guardar token</button>
       <div id="tokenMsg" style="font-size:13px;min-height:20px;margin-top:6px;"></div>
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:16px 0;">
+      <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:8px;">Layout del teclado:</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="layoutBtns"></div>
+      <div id="layoutMsg" style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:6px;"></div>
     </div>
   </div>
 
@@ -804,19 +809,47 @@
 
   // ─── Combo generation ───
 
-  const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÑ'.split('');
   const CTRL_SKIP = new Set(['T', 'W', 'N', 'R', 'S', 'P', 'O', 'H', 'J', 'D', 'F', 'G', 'L', 'U', 'I', 'Q']);
-  const ALLOWED_LETTERS = LETTERS.filter(l => !CTRL_SKIP.has(l));
   const NUMBERS = ['0','1','2','3','4','5','6','7','8','9'];
-  const SHIFT_SYMBOLS = { '1':'!','2':'"','3':'·','4':'$','5':'%','6':'&','7':'/','8':'(','9':')','0':'=' };
-  const ALTGR_SYMBOLS = { '2':'@','3':'#','5':'€','6':'¬' };
-  const SPANISH_CODES = { 'Ñ': 'Semicolon' };
+
+  const LAYOUT_DATA = {
+    es: {
+      name: 'Español',
+      letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZÑ'.split(''),
+      shiftSymbols: { '1':'!','2':'"','3':'·','4':'$','5':'%','6':'&','7':'/','8':'(','9':')','0':'=' },
+      altgrSymbols: { '2':'@','3':'#','5':'€','6':'¬' },
+      extraCodes: { 'Ñ': 'Semicolon' },
+    },
+    us: {
+      name: 'English (US)',
+      letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+      shiftSymbols: { '1':'!','2':'@','3':'#','4':'$','5':'%','6':'^','7':'&','8':'*','9':'(','0':')' },
+      altgrSymbols: {},
+      extraCodes: {},
+    }
+  };
+
+  let LAYOUT = LAYOUT_DATA.es;
+
+  function getLetters() { return LAYOUT.letters; }
+  function getAllowedLetters() { return LAYOUT.letters.filter(l => !CTRL_SKIP.has(l)); }
+  function letterToCode(letter) { return LAYOUT.extraCodes[letter] || `Key${letter}`; }
+
+  async function detectLayout() {
+    try {
+      const map = await navigator.keyboard.getLayoutMap();
+      const k = map.get('Semicolon');
+      if (k === 'ñ') return 'es';
+      if (k === 'ç') return 'es';
+    } catch(e) {}
+    try {
+      const k = await navigator.keyboard.getLayoutMap();
+      if (k.get('KeyZ') === 'z' && k.get('Semicolon') === ';') return 'us';
+    } catch(e) {}
+    return null;
+  }
 
   function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-  function letterToCode(letter) {
-    return SPANISH_CODES[letter] || `Key${letter}`;
-  }
 
   function makeCombo(mods, code, displayParts, pts, expectedKey) {
     const c = { mods, code, displayParts, pts };
@@ -829,7 +862,7 @@
 
     switch (type) {
       case 'ctrl_letter': {
-        const letter = pick(ALLOWED_LETTERS);
+        const letter = pick(getAllowedLetters());
         return makeCombo(
           { ctrl: true, shift: false, alt: false },
           letterToCode(letter),
@@ -838,7 +871,7 @@
         );
       }
       case 'shift_letter': {
-        const letter = pick(LETTERS);
+        const letter = pick(getLetters());
         return makeCombo(
           { ctrl: false, shift: true, alt: false },
           letterToCode(letter),
@@ -860,12 +893,12 @@
         return makeCombo(
           { ctrl: false, shift: true, alt: false },
           `Digit${num}`,
-          ['Mayús', '+', SHIFT_SYMBOLS[num]],
+          ['Mayús', '+', LAYOUT.shiftSymbols[num]],
           15
         );
       }
       case 'ctrl_shift_letter': {
-        const letter = pick(ALLOWED_LETTERS);
+        const letter = pick(getAllowedLetters());
         return makeCombo(
           { ctrl: true, shift: true, alt: false },
           letterToCode(letter),
@@ -883,7 +916,7 @@
         );
       }
       case 'ctrl_alt_letter': {
-        const letter = pick(ALLOWED_LETTERS);
+        const letter = pick(getAllowedLetters());
         return makeCombo(
           { ctrl: true, shift: false, alt: true },
           letterToCode(letter),
@@ -893,7 +926,7 @@
       }
       case 'ctrl_alt_number': {
         const num = pick(NUMBERS);
-        const sym = ALTGR_SYMBOLS[num];
+        const sym = LAYOUT.altgrSymbols[num];
         if (sym) {
           return makeCombo(
             { ctrl: true, shift: false, alt: true },
@@ -911,7 +944,7 @@
         );
       }
       case 'shift_alt_letter': {
-        const letter = pick(LETTERS);
+        const letter = pick(getLetters());
         return makeCombo(
           { ctrl: false, shift: true, alt: true },
           letterToCode(letter),
@@ -924,12 +957,12 @@
         return makeCombo(
           { ctrl: false, shift: true, alt: true },
           `Digit${num}`,
-          ['Mayús', '+', 'Alt', '+', SHIFT_SYMBOLS[num]],
+          ['Mayús', '+', 'Alt', '+', LAYOUT.shiftSymbols[num]],
           30
         );
       }
       case 'ctrl_shift_alt_letter': {
-        const letter = pick(ALLOWED_LETTERS);
+        const letter = pick(getAllowedLetters());
         return makeCombo(
           { ctrl: true, shift: true, alt: true },
           letterToCode(letter),
@@ -946,7 +979,7 @@
           display = ['Ctrl', '+', 'Mayús', '+', num];
           code = `Digit${num}`;
         } else if (modType === 'ctrl_alt') {
-          const sym = ALTGR_SYMBOLS[num];
+          const sym = LAYOUT.altgrSymbols[num];
           if (sym) {
             display = ['AltGr', '+', sym];
             code = null;
@@ -956,14 +989,14 @@
             code = `Digit${num}`;
           }
         } else {
-          display = ['Mayús', '+', 'Alt', '+', SHIFT_SYMBOLS[num]];
+          display = ['Mayús', '+', 'Alt', '+', LAYOUT.shiftSymbols[num]];
           code = `Digit${num}`;
         }
         return makeCombo(mods, code, display, 30, expectedKey);
       }
       case 'ctrl_alt_shift_number': {
         const num = pick(NUMBERS);
-        const sym = ALTGR_SYMBOLS[num];
+        const sym = LAYOUT.altgrSymbols[num];
         if (sym) {
           return makeCombo(
             { ctrl: true, shift: true, alt: true },
@@ -1437,9 +1470,35 @@
 
   sbToggle.addEventListener('click', showScoreboard);
   sbClose.addEventListener('click', hideScoreboard);
+  function populateLayoutBtns() {
+    const container = document.getElementById('layoutBtns');
+    if (!container) return;
+    container.innerHTML = '';
+    Object.keys(LAYOUT_DATA).forEach(key => {
+      const btn = document.createElement('button');
+      btn.textContent = LAYOUT_DATA[key].name;
+      btn.style.cssText = 'font-family:Inter,sans-serif;font-weight:600;font-size:12px;padding:6px 14px;border:1px solid rgba(255,255,255,0.08);border-radius:8px;background:' + (LAYOUT === LAYOUT_DATA[key] ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.04)') + ';color:#fff;cursor:pointer;transition:background 0.2s;';
+      btn.onmouseenter = () => { if (LAYOUT !== LAYOUT_DATA[key]) btn.style.background = 'rgba(255,255,255,0.08)'; };
+      btn.onmouseleave = () => { btn.style.background = LAYOUT === LAYOUT_DATA[key] ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.04)'; };
+      btn.onclick = () => {
+        LAYOUT = LAYOUT_DATA[key];
+        populateLayoutBtns();
+        const el = document.getElementById('layoutName');
+        if (el) el.textContent = LAYOUT.name;
+        const msg = document.getElementById('layoutMsg');
+        if (msg) msg.textContent = '✅ Layout cambiado a ' + LAYOUT.name;
+        localStorage.setItem('kc_layout', key);
+      };
+      container.appendChild(btn);
+    });
+  }
+
   configToggle.addEventListener('click', function() {
     tokenInput.value = getGistToken();
     tokenMsg.textContent = '';
+    populateLayoutBtns();
+    const msg = document.getElementById('layoutMsg');
+    if (msg) msg.textContent = '';
     configOverlay.classList.remove('hidden');
   });
   configClose.addEventListener('click', function() { configOverlay.classList.add('hidden'); });
@@ -1464,13 +1523,25 @@
     }
   });
 
-  // ─── Boot ───
-  showStart();
-  renderStats();
-  renderProgress();
-  // Show demo combo
-  state.currentCombo = makeCombo({ ctrl: true, shift: false, alt: false }, 'KeyC', ['Ctrl', '+', 'C'], 10);
-  renderCombo(state.currentCombo);
+  // ─── Layout detection ───
+  async function init() {
+    const saved = localStorage.getItem('kc_layout');
+    if (saved && LAYOUT_DATA[saved]) {
+      LAYOUT = LAYOUT_DATA[saved];
+    } else {
+      const detected = await detectLayout();
+      if (detected && LAYOUT_DATA[detected]) LAYOUT = LAYOUT_DATA[detected];
+    }
+    const layoutNameEl = document.getElementById('layoutName');
+    if (layoutNameEl) layoutNameEl.textContent = LAYOUT.name;
+    showStart();
+    renderStats();
+    renderProgress();
+    state.currentCombo = makeCombo({ ctrl: true, shift: false, alt: false }, 'KeyC', ['Ctrl', '+', 'C'], 10);
+    renderCombo(state.currentCombo);
+  }
+
+  init();
 })();
 </script>
 </body>
