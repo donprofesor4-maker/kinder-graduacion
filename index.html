@@ -475,6 +475,38 @@
   }
   .sb-close:hover { background: rgba(255,255,255,0.08); color: #fff; }
 
+  #configOverlay {
+    position: absolute;
+    inset: 0;
+    z-index: 25;
+    background: rgba(15, 15, 19, 0.92);
+    backdrop-filter: blur(12px);
+    border-radius: 28px;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    transition: opacity 0.3s, visibility 0.3s;
+  }
+  #configOverlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .token-input {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #fff;
+    font-size: 13px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .token-input:focus { border-color: rgba(99, 102, 241, 0.5); }
+  .token-input::placeholder { color: rgba(255,255,255,0.15); }
+
   .sb-table-wrap {
     flex: 1;
     overflow-y: auto;
@@ -607,6 +639,7 @@
       <span class="value" id="livesDisplay">❤️❤️❤️</span>
     </div>
     <button class="sb-btn" id="sbToggle" title="Puntuaciones">🏅</button>
+    <button class="sb-btn" id="configToggle" title="Configurar scoreboard global">⚙️</button>
   </header>
 
   <div class="level-bar-wrap">
@@ -672,6 +705,24 @@
     </div>
   </div>
 
+  <!-- Config overlay -->
+  <div id="configOverlay" class="hidden">
+    <div class="sb-header">
+      <h2 style="font-size:18px;">⚙️ Configurar scoreboard</h2>
+      <button class="sb-close" id="configClose">✕</button>
+    </div>
+    <div style="padding:8px 4px;">
+      <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:12px;line-height:1.5;">
+        Pega aquí el <strong>GitHub Personal Access Token</strong> con permiso <strong>Gist</strong>
+        para que las puntuaciones se guarden globalmente.<br><br>
+        Sin token, cada jugador guarda en su navegador.
+      </p>
+      <input class="token-input" id="tokenInput" placeholder="github_pat_..." autocomplete="off" spellcheck="false">
+      <button class="btn-save-score" id="saveTokenBtn" style="margin-top:8px;">💾 Guardar token</button>
+      <div id="tokenMsg" style="font-size:13px;min-height:20px;margin-top:6px;"></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -709,12 +760,17 @@
   const sbClose = $('sbClose');
   const sbTableWrap = $('sbTableWrap');
   const sbLoading = $('sbLoading');
+  const configOverlay = $('configOverlay');
+  const configToggle = $('configToggle');
+  const configClose = $('configClose');
+  const tokenInput = $('tokenInput');
+  const saveTokenBtn = $('saveTokenBtn');
+  const tokenMsg = $('tokenMsg');
 
   // ─── GitHub Gist scoreboard config ───
-  const SCORE_CFG = {
-    gistId: '7bb744a5de9335d04d307560f4c9bb27',
-    token: ''
-  };
+  const CFG_GIST_ID = '7bb744a5de9335d04d307560f4c9bb27';
+  function getGistToken() { return localStorage.getItem('kc_gist_token') || ''; }
+  function setGistToken(v) { localStorage.setItem('kc_gist_token', v); }
 
   // ─── Game state ───
   const state = {
@@ -1147,9 +1203,9 @@
   }
 
   async function loadScores() {
-    if (SCORE_CFG.gistId) {
+    if (CFG_GIST_ID) {
       try {
-        const res = await fetch(`https://api.github.com/gists/${SCORE_CFG.gistId}`);
+        const res = await fetch(`https://api.github.com/gists/${CFG_GIST_ID}`);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         const content = data.files && data.files['scores-init.json'] && data.files['scores-init.json'].content;
@@ -1174,13 +1230,14 @@
     scores = scores.slice(0, 100);
     setLocalScores(scores);
 
-    if (SCORE_CFG.gistId && SCORE_CFG.token) {
+    const token = getGistToken();
+    if (CFG_GIST_ID && token) {
       try {
-        await fetch(`https://api.github.com/gists/${SCORE_CFG.gistId}`, {
+        const res = await fetch(`https://api.github.com/gists/${CFG_GIST_ID}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${SCORE_CFG.token}`,
+            'Authorization': `Bearer ${token}`,
             'Accept': 'application/vnd.github.v3+json'
           },
           body: JSON.stringify({
@@ -1191,6 +1248,7 @@
             }
           })
         });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
       } catch (e) {
         console.warn('Gist save failed, saved locally:', e.message);
       }
@@ -1380,6 +1438,19 @@
 
   sbToggle.addEventListener('click', showScoreboard);
   sbClose.addEventListener('click', hideScoreboard);
+  configToggle.addEventListener('click', function() {
+    tokenInput.value = getGistToken();
+    tokenMsg.textContent = '';
+    configOverlay.classList.remove('hidden');
+  });
+  configClose.addEventListener('click', function() { configOverlay.classList.add('hidden'); });
+  saveTokenBtn.addEventListener('click', function() {
+    const t = tokenInput.value.trim();
+    if (!t) { tokenMsg.textContent = '❌ Pega el token'; return; }
+    setGistToken(t);
+    tokenMsg.textContent = '✅ Token guardado en tu navegador';
+    setTimeout(() => configOverlay.classList.add('hidden'), 800);
+  });
   saveScoreBtn.addEventListener('click', handleSaveScore);
 
   nameInput.addEventListener('keydown', function(e) {
