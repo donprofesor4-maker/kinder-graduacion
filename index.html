@@ -490,25 +490,25 @@
         /* Posiciones polaroids */
         .polaroid:nth-child(1) { top: 2%; left: 8%; transform: rotate(-7deg); }
         .polaroid:nth-child(2) { top: 2%; left: 52%; transform: rotate(5deg); }
-        .polaroid:nth-child(3) { top: 15%; left: 30%; transform: rotate(-3deg); }
-        .polaroid:nth-child(4) { top: 20%; left: 70%; transform: rotate(6deg); }
-        .polaroid:nth-child(5) { top: 30%; left: 10%; transform: rotate(-4deg); }
-        .polaroid:nth-child(6) { top: 32%; left: 55%; transform: rotate(3deg); }
-        .polaroid:nth-child(7) { top: 42%; left: 25%; transform: rotate(-6deg); }
-        .polaroid:nth-child(8) { top: 45%; left: 65%; transform: rotate(4deg); }
-        .polaroid:nth-child(9) { top: 55%; left: 5%; transform: rotate(-3deg); }
-        .polaroid:nth-child(10) { top: 57%; left: 45%; transform: rotate(5deg); }
-        .polaroid:nth-child(11) { top: 67%; left: 20%; transform: rotate(-5deg); }
-        .polaroid:nth-child(12) { top: 69%; left: 60%; transform: rotate(3deg); }
-        .polaroid:nth-child(13) { top: 79%; left: 8%; transform: rotate(-4deg); }
-        .polaroid:nth-child(14) { top: 81%; left: 50%; transform: rotate(6deg); }
-        .polaroid:nth-child(15) { top: 91%; left: 28%; transform: rotate(-3deg); }
-        .polaroid:nth-child(16) { top: 93%; left: 68%; transform: rotate(4deg); }
-        .polaroid:nth-child(17) { top: 103%; left: 12%; transform: rotate(-6deg); }
-        .polaroid:nth-child(18) { top: 105%; left: 52%; transform: rotate(3deg); }
-        .polaroid:nth-child(19) { top: 115%; left: 32%; transform: rotate(-4deg); }
-        .polaroid:nth-child(20) { top: 117%; left: 72%; transform: rotate(5deg); }
-        .polaroid:nth-child(21) { top: 127%; left: 15%; transform: rotate(-3deg); }
+        .polaroid:nth-child(3) { top: 11%; left: 30%; transform: rotate(-3deg); }
+        .polaroid:nth-child(4) { top: 14%; left: 70%; transform: rotate(6deg); }
+        .polaroid:nth-child(5) { top: 21%; left: 10%; transform: rotate(-4deg); }
+        .polaroid:nth-child(6) { top: 22%; left: 55%; transform: rotate(3deg); }
+        .polaroid:nth-child(7) { top: 29%; left: 25%; transform: rotate(-6deg); }
+        .polaroid:nth-child(8) { top: 31%; left: 65%; transform: rotate(4deg); }
+        .polaroid:nth-child(9) { top: 37%; left: 5%; transform: rotate(-3deg); }
+        .polaroid:nth-child(10) { top: 39%; left: 45%; transform: rotate(5deg); }
+        .polaroid:nth-child(11) { top: 45%; left: 20%; transform: rotate(-5deg); }
+        .polaroid:nth-child(12) { top: 47%; left: 60%; transform: rotate(3deg); }
+        .polaroid:nth-child(13) { top: 53%; left: 8%; transform: rotate(-4deg); }
+        .polaroid:nth-child(14) { top: 55%; left: 50%; transform: rotate(6deg); }
+        .polaroid:nth-child(15) { top: 61%; left: 28%; transform: rotate(-3deg); }
+        .polaroid:nth-child(16) { top: 62%; left: 68%; transform: rotate(4deg); }
+        .polaroid:nth-child(17) { top: 69%; left: 12%; transform: rotate(-6deg); }
+        .polaroid:nth-child(18) { top: 70%; left: 52%; transform: rotate(3deg); }
+        .polaroid:nth-child(19) { top: 77%; left: 32%; transform: rotate(-4deg); }
+        .polaroid:nth-child(20) { top: 78%; left: 72%; transform: rotate(5deg); }
+        .polaroid:nth-child(21) { top: 85%; left: 15%; transform: rotate(-3deg); }
 
         @media (max-width: 768px) {
             .hero h1 {
@@ -682,8 +682,8 @@
 
         gsap.utils.toArray('.polaroid').forEach(p => animatePolaroid(p));
         gsap.to('.scroll-indicator', { scrollTrigger: { trigger: '.hero', start: "top top", end: "bottom top", scrub: true }, opacity: 0, y: -50 });
-        gsap.from('.hero h1', { scrollTrigger: { trigger: '.hero', start: "top top", end: "bottom top", scrub: true }, y: -200, opacity: 0, scale: 0.7 });
-        gsap.from('.hero p', { scrollTrigger: { trigger: '.hero', start: "top top", end: "bottom top", scrub: true }, y: -100, opacity: 0 });
+        gsap.to('.hero h1', { scrollTrigger: { trigger: '.hero', start: "top top", end: "bottom top", scrub: true }, y: -300, opacity: 0, scale: 0.6 });
+        gsap.to('.hero p', { scrollTrigger: { trigger: '.hero', start: "top top", end: "bottom top", scrub: true }, y: -150, opacity: 0 });
         gsap.from('.section-title h2', { scrollTrigger: { trigger: '.section-title', start: "top 80%", end: "bottom 20%", scrub: 1 }, scale: 0.3, opacity: 0, rotation: 15 });
         gsap.from('.footer h2', { scrollTrigger: { trigger: '.footer', start: "top 80%", end: "bottom 20%", scrub: 1 }, y: 100, opacity: 0, scale: 0.8 });
         gsap.from('.footer p', { scrollTrigger: { trigger: '.footer', start: "top 80%", end: "bottom 20%", scrub: 1 }, y: 60, opacity: 0, delay: 0.4 });
