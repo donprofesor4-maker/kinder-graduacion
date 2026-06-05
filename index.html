@@ -521,16 +521,16 @@
                 padding: 0.5rem;
             }
             .polaroid {
-                padding: 10px 10px 45px 10px;
-                width: 170px;
+                padding: 12px 12px 55px 12px;
+                width: 304px;
             }
             .polaroid img {
-                width: 150px;
-                height: 150px;
+                width: 280px;
+                height: 280px;
             }
             .polaroid .caption {
-                font-size: 0.8rem;
-                bottom: 12px;
+                font-size: 0.95rem;
+                bottom: 16px;
             }
 
             .modal-header h2 { font-size: 1.4rem; }
@@ -545,9 +545,18 @@
 
         @media (max-width: 480px) {
             .hero h1 { font-size: 2.5rem; }
-            .polaroid { width: 150px; }
-            .polaroid img { width: 130px; height: 130px; }
-            .polaroid .caption { font-size: 0.7rem; }
+            .polaroid {
+                padding: 8px 8px 45px 8px;
+                width: 260px;
+            }
+            .polaroid img {
+                width: 244px;
+                height: 244px;
+            }
+            .polaroid .caption {
+                font-size: 0.85rem;
+                bottom: 12px;
+            }
         }
     </style>
 </head>
@@ -630,6 +639,7 @@
         let ninoActual = null;
 
         const isMobile = () => window.innerWidth <= 768;
+        const mobileWidth = () => window.innerWidth <= 480 ? 130 : 152; // half polaroid width for centering
 
         ninos.forEach((nino, i) => {
             const div = document.createElement('div');
@@ -637,7 +647,7 @@
             if (isMobile()) {
                 const topPct = 2 + i * 4;
                 div.style.top = topPct + '%';
-                div.style.left = 'calc(50% - 85px)';
+                div.style.left = `calc(50% - ${mobileWidth()}px)`;
             }
             div.innerHTML = `
                 <img src="${BASE_PORTADAS}${portadas[i]}" alt="Graduación ${nino.id}">
@@ -656,12 +666,16 @@
         ajustarAlturaContainer();
         window.addEventListener('resize', () => {
             ajustarAlturaContainer();
-            if (isMobile()) {
-                document.querySelectorAll('.polaroid').forEach((p, i) => {
+            const mobile = isMobile();
+            document.querySelectorAll('.polaroid').forEach((p, i) => {
+                if (mobile) {
                     p.style.top = (2 + i * 4) + '%';
-                    p.style.left = 'calc(50% - 85px)';
-                });
-            }
+                    p.style.left = `calc(50% - ${mobileWidth()}px)`;
+                } else {
+                    p.style.top = '';
+                    p.style.left = '';
+                }
+            });
         });
 
         // ============ ANIMACIONES SCROLL ============
