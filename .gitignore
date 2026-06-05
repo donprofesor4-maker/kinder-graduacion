@@ -1,0 +1,5 @@
+node_modules/
+*.html
+!index.html
+!datos.js
+.DS_Store
