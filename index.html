@@ -87,6 +87,10 @@
             z-index: 100;
         }
 
+        @media (hover: none) {
+            .polaroid:hover { transform: none !important; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
+        }
+
         .polaroid img {
             width: 280px;
             height: 280px;
@@ -114,7 +118,9 @@
         }
 
         .section-title h2 {
-            background: linear-gradient(45deg, #f39c12, #e74c3c);
+            font-family: 'Playfair Display', 'Georgia', serif;
+            font-style: italic;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 50%, #f9a825 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -132,9 +138,11 @@
         }
 
         .footer h2 {
+            font-family: 'Playfair Display', 'Georgia', serif;
+            font-style: italic;
             font-size: 3rem;
             margin-bottom: 1.5rem;
-            background: linear-gradient(45deg, #f39c12, #e74c3c);
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 50%, #f9a825 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -639,13 +647,14 @@
         let ninoActual = null;
 
         const isMobile = () => window.innerWidth <= 768;
-        const mobileWidth = () => window.innerWidth <= 480 ? 130 : 152; // half polaroid width for centering
+        const mobileWidth = () => window.innerWidth <= 480 ? 130 : 152;
+        const mobileStep = () => window.innerWidth <= 480 ? 5 : 4.5;
 
         ninos.forEach((nino, i) => {
             const div = document.createElement('div');
             div.className = 'polaroid';
             if (isMobile()) {
-                const topPct = 2 + i * 4;
+                const topPct = 2 + i * mobileStep();
                 div.style.top = topPct + '%';
                 div.style.left = `calc(50% - ${mobileWidth()}px)`;
             }
@@ -659,7 +668,10 @@
 
         // Ajustar altura del contenedor según pantalla
         function ajustarAlturaContainer() {
-            const h = isMobile() ? '800vh' : '600vh';
+            const w = window.innerWidth;
+            let h = '600vh';
+            if (w <= 480) h = '1100vh';
+            else if (w <= 768) h = '900vh';
             container.style.height = h;
             ScrollTrigger.refresh();
         }
@@ -669,7 +681,7 @@
             const mobile = isMobile();
             document.querySelectorAll('.polaroid').forEach((p, i) => {
                 if (mobile) {
-                    p.style.top = (2 + i * 4) + '%';
+                    p.style.top = (2 + i * mobileStep()) + '%';
                     p.style.left = `calc(50% - ${mobileWidth()}px)`;
                 } else {
                     p.style.top = '';
