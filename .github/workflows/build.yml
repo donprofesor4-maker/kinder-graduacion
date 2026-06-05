@@ -1,0 +1,32 @@
+name: Build Pochota Web ISO
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          pacman-key --init
+          pacman-key --populate archlinux
+          pacman -Syu --noconfirm archiso grub syslinux
+
+      - name: Build ISO
+        run: |
+          mkarchiso -v -w /work -o /out "${{ github.workspace }}/pochota"
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: pochota-web-iso
+          path: /out/*.iso

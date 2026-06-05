@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graduación Kindergarten - Scrollaroids</title>
+    <title>Graduaciones 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Georgia', serif;
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 50%, #2980b9 100%);
+            background: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 30%, #24243e 70%, #0f0c29 100%);
             overflow-x: hidden;
             color: white;
         }
@@ -26,21 +27,28 @@
         }
 
         .hero h1 {
-            font-size: 5rem;
-            margin-bottom: 1rem;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
-            background: linear-gradient(45deg, #f39c12, #e74c3c);
+            font-family: 'Playfair Display', 'Georgia', serif;
+            font-weight: 900;
+            font-style: italic;
+            font-size: 6rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 4px 4px 12px rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 30%, #f6d365 60%, #f9a825 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: 2px;
         }
 
         .hero p {
-            font-size: 1.8rem;
-            opacity: 0.9;
-            max-width: 700px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-family: 'Playfair Display', 'Georgia', serif;
+            font-style: italic;
+            font-size: 1.6rem;
+            opacity: 0.85;
+            max-width: 600px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
             margin-bottom: 2rem;
+            color: #e8d5b7;
         }
 
         .scroll-indicator {
@@ -503,19 +511,50 @@
         .polaroid:nth-child(21) { top: 127%; left: 15%; transform: rotate(-3deg); }
 
         @media (max-width: 768px) {
-            .hero h1 { font-size: 3rem; }
-            .hero p { font-size: 1.2rem; }
-            .polaroid img { width: 180px; height: 180px; }
+            .hero h1 {
+                font-size: 3.2rem;
+                letter-spacing: 1px;
+            }
+            .hero p { font-size: 1.1rem; }
+
+            .polaroids-container {
+                padding: 0.5rem;
+            }
+            .polaroid {
+                padding: 10px 10px 45px 10px;
+                width: 170px;
+            }
+            .polaroid img {
+                width: 150px;
+                height: 150px;
+            }
+            .polaroid .caption {
+                font-size: 0.8rem;
+                bottom: 12px;
+            }
+
             .modal-header h2 { font-size: 1.4rem; }
-            .modal-gallery { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-            .modal-gallery .gallery-item img { height: 180px; }
+            .modal-gallery { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+            .modal-gallery .gallery-item img { height: 160px; }
+            .modal-overlay { padding: 1rem; }
+
+            .footer h2 { font-size: 2rem; }
+            .footer p { font-size: 1rem; }
+            .section-title { font-size: 2.5rem; padding: 4rem 1rem; }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 2.5rem; }
+            .polaroid { width: 150px; }
+            .polaroid img { width: 130px; height: 130px; }
+            .polaroid .caption { font-size: 0.7rem; }
         }
     </style>
 </head>
 <body>
     <section class="hero">
-        <h1>Graduación Kindergarten</h1>
-        <p>Un viaje a través de los mejores momentos de esta etapa tan especial</p>
+        <h1>Graduaciones 2026</h1>
+        <p>Celebrando el inicio de una gran aventura</p>
         <div class="scroll-indicator">↓</div>
     </section>
 
@@ -590,15 +629,39 @@
         const container = document.getElementById('polaroidsContainer');
         let ninoActual = null;
 
+        const isMobile = () => window.innerWidth <= 768;
+
         ninos.forEach((nino, i) => {
             const div = document.createElement('div');
             div.className = 'polaroid';
+            if (isMobile()) {
+                const topPct = 2 + i * 4;
+                div.style.top = topPct + '%';
+                div.style.left = 'calc(50% - 85px)';
+            }
             div.innerHTML = `
                 <img src="${BASE_PORTADAS}${portadas[i]}" alt="Graduación ${nino.id}">
                 <div class="caption">${captions[i]}</div>
             `;
             div.addEventListener('click', () => pedirCodigo(nino));
             container.appendChild(div);
+        });
+
+        // Ajustar altura del contenedor según pantalla
+        function ajustarAlturaContainer() {
+            const h = isMobile() ? '800vh' : '600vh';
+            container.style.height = h;
+            ScrollTrigger.refresh();
+        }
+        ajustarAlturaContainer();
+        window.addEventListener('resize', () => {
+            ajustarAlturaContainer();
+            if (isMobile()) {
+                document.querySelectorAll('.polaroid').forEach((p, i) => {
+                    p.style.top = (2 + i * 4) + '%';
+                    p.style.left = 'calc(50% - 85px)';
+                });
+            }
         });
 
         // ============ ANIMACIONES SCROLL ============
