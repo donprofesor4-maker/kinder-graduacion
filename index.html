@@ -741,7 +741,7 @@
             lightboxIdx = 0;
             lightboxImg.src = "galeria/panoramika_k1.jpg";
             lightbox.classList.add('active');
-            gsap.from(lightboxImg, { scale: 0.3, opacity: 0, duration: 0.6, ease: "back.out(1.7)" });
+            try { gsap.from(lightboxImg, { scale: 0.3, opacity: 0, duration: 0.6, ease: "back.out(1.7)" }); } catch(e) {}
         });
         container.appendChild(panDiv);
 
@@ -798,6 +798,21 @@
         }
 
         gsap.utils.toArray('.polaroid').forEach(p => animatePolaroid(p));
+        const pan = document.querySelector('.polaroid-panoramica');
+        if (pan) {
+            gsap.from(pan, {
+                scrollTrigger: { trigger: pan, start: "top 90%", end: "top 50%", scrub: 1 },
+                opacity: 0, scale: 0.3, rotation: -15
+            });
+            gsap.to(pan, {
+                scrollTrigger: { trigger: '.polaroids-container', start: "top bottom", end: "bottom top", scrub: true },
+                y: gsap.utils.random(-80, 80), rotation: gsap.utils.random(-5, 5), ease: "none"
+            });
+            gsap.to(pan, {
+                scrollTrigger: { trigger: pan, start: "top 50%", end: "bottom 50%", scrub: true },
+                scale: 1.08, ease: "power2.inOut"
+            });
+        }
         gsap.to('.scroll-indicator', { scrollTrigger: { trigger: '.hero', start: "top top", end: "bottom top", scrub: true }, opacity: 0, y: -50 });
         gsap.to('.hero h1', { scrollTrigger: { trigger: '.hero', start: "top top", end: "bottom top", scrub: true }, y: -300, opacity: 0, scale: 0.6 });
         gsap.to('.hero p', { scrollTrigger: { trigger: '.hero', start: "top top", end: "bottom top", scrub: true }, y: -150, opacity: 0 });
