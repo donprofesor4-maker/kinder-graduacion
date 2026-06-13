@@ -728,7 +728,7 @@
             }
             div.innerHTML = `
                 <img src="${BASE_PORTADAS}${portadas[i]}" alt="Graduación ${nino.id}">
-                <div class="caption">${captions[i]}</div>
+                <div class="caption">${nino.caption}</div>
             `;
             div.addEventListener('click', () => pedirCodigo(nino));
             container.appendChild(div);
@@ -880,7 +880,7 @@
         let fotosSeleccionadas = [];
 
         function abrirGaleria(nino) {
-            modalTitle.textContent = captions[nino.id - 1];
+            modalTitle.textContent = nino.caption;
             fotosSeleccionadas = [];
             actualizarSeleccion();
 
@@ -954,7 +954,7 @@
 
             const nombresFotos = fotosSeleccionadas.map(f => f.nombre).join('\n');
             const texto = encodeURIComponent(
-                `Pedido de fotos para imprimir - ${captions[ninoActual.id - 1]}\n\nFotos seleccionadas:\n${nombresFotos}\n\nTotal: ${fotosSeleccionadas.length} foto(s)`
+                `Pedido de fotos para imprimir - ${ninoActual.caption}\n\nFotos seleccionadas:\n${nombresFotos}\n\nTotal: ${fotosSeleccionadas.length} foto(s)`
             );
 
             window.open(`https://wa.me/5219611111111?text=${texto}`, '_blank');
@@ -999,8 +999,13 @@
         });
 
         document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (lightbox.classList.contains('active')) lightbox.classList.remove('active');
+                else if (modal.classList.contains('active')) cerrarModal();
+                else if (modalCodigo.classList.contains('active')) modalCodigo.classList.remove('active');
+                return;
+            }
             if (!lightbox.classList.contains('active')) return;
-            if (e.key === 'Escape') lightbox.classList.remove('active');
             if (e.key === 'ArrowLeft') lightboxPrev.click();
             if (e.key === 'ArrowRight') lightboxNext.click();
         });
