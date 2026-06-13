@@ -98,6 +98,66 @@
             display: block;
         }
 
+        .polaroid-panoramica {
+            position: absolute;
+            background: white;
+            padding: 15px 15px 60px 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            transform-origin: center center;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+            cursor: pointer;
+            width: 580px;
+        }
+
+        .polaroid-panoramica:hover {
+            transform: scale(1.05) !important;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            z-index: 100;
+        }
+
+        .polaroid-panoramica img {
+            width: 550px;
+            height: 275px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .polaroid-panoramica .caption {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #2c3e50;
+            font-style: italic;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .polaroid-panoramica {
+                width: 340px;
+                padding: 10px 10px 50px 10px;
+            }
+            .polaroid-panoramica img {
+                width: 320px;
+                height: 160px;
+            }
+            .polaroid-panoramica .caption { font-size: 1rem; bottom: 14px; }
+        }
+
+        @media (max-width: 480px) {
+            .polaroid-panoramica {
+                width: 280px;
+                padding: 8px 8px 45px 8px;
+            }
+            .polaroid-panoramica img {
+                width: 264px;
+                height: 132px;
+            }
+            .polaroid-panoramica .caption { font-size: 0.9rem; bottom: 12px; }
+        }
+
         .polaroid .caption {
             position: absolute;
             bottom: 20px;
@@ -496,27 +556,27 @@
         .lightbox-next { right: 20px; }
 
         /* Posiciones polaroids */
-        .polaroid:nth-child(1) { top: 2%; left: 8%; transform: rotate(-7deg); }
-        .polaroid:nth-child(2) { top: 2%; left: 52%; transform: rotate(5deg); }
-        .polaroid:nth-child(3) { top: 11%; left: 30%; transform: rotate(-3deg); }
-        .polaroid:nth-child(4) { top: 14%; left: 70%; transform: rotate(6deg); }
-        .polaroid:nth-child(5) { top: 21%; left: 10%; transform: rotate(-4deg); }
-        .polaroid:nth-child(6) { top: 22%; left: 55%; transform: rotate(3deg); }
-        .polaroid:nth-child(7) { top: 29%; left: 25%; transform: rotate(-6deg); }
-        .polaroid:nth-child(8) { top: 31%; left: 65%; transform: rotate(4deg); }
-        .polaroid:nth-child(9) { top: 37%; left: 5%; transform: rotate(-3deg); }
-        .polaroid:nth-child(10) { top: 39%; left: 45%; transform: rotate(5deg); }
-        .polaroid:nth-child(11) { top: 45%; left: 20%; transform: rotate(-5deg); }
-        .polaroid:nth-child(12) { top: 47%; left: 60%; transform: rotate(3deg); }
-        .polaroid:nth-child(13) { top: 53%; left: 8%; transform: rotate(-4deg); }
-        .polaroid:nth-child(14) { top: 55%; left: 50%; transform: rotate(6deg); }
-        .polaroid:nth-child(15) { top: 61%; left: 28%; transform: rotate(-3deg); }
-        .polaroid:nth-child(16) { top: 62%; left: 68%; transform: rotate(4deg); }
-        .polaroid:nth-child(17) { top: 69%; left: 12%; transform: rotate(-6deg); }
-        .polaroid:nth-child(18) { top: 70%; left: 52%; transform: rotate(3deg); }
-        .polaroid:nth-child(19) { top: 77%; left: 32%; transform: rotate(-4deg); }
-        .polaroid:nth-child(20) { top: 78%; left: 72%; transform: rotate(5deg); }
-        .polaroid:nth-child(21) { top: 85%; left: 15%; transform: rotate(-3deg); }
+        .polaroid:nth-child(1) { top: 11%; left: 8%; transform: rotate(-7deg); }
+        .polaroid:nth-child(2) { top: 11%; left: 52%; transform: rotate(5deg); }
+        .polaroid:nth-child(3) { top: 20%; left: 30%; transform: rotate(-3deg); }
+        .polaroid:nth-child(4) { top: 23%; left: 70%; transform: rotate(6deg); }
+        .polaroid:nth-child(5) { top: 30%; left: 10%; transform: rotate(-4deg); }
+        .polaroid:nth-child(6) { top: 31%; left: 55%; transform: rotate(3deg); }
+        .polaroid:nth-child(7) { top: 38%; left: 25%; transform: rotate(-6deg); }
+        .polaroid:nth-child(8) { top: 40%; left: 65%; transform: rotate(4deg); }
+        .polaroid:nth-child(9) { top: 46%; left: 5%; transform: rotate(-3deg); }
+        .polaroid:nth-child(10) { top: 48%; left: 45%; transform: rotate(5deg); }
+        .polaroid:nth-child(11) { top: 54%; left: 20%; transform: rotate(-5deg); }
+        .polaroid:nth-child(12) { top: 56%; left: 60%; transform: rotate(3deg); }
+        .polaroid:nth-child(13) { top: 62%; left: 8%; transform: rotate(-4deg); }
+        .polaroid:nth-child(14) { top: 64%; left: 50%; transform: rotate(6deg); }
+        .polaroid:nth-child(15) { top: 70%; left: 28%; transform: rotate(-3deg); }
+        .polaroid:nth-child(16) { top: 71%; left: 68%; transform: rotate(4deg); }
+        .polaroid:nth-child(17) { top: 78%; left: 12%; transform: rotate(-6deg); }
+        .polaroid:nth-child(18) { top: 79%; left: 52%; transform: rotate(3deg); }
+        .polaroid:nth-child(19) { top: 86%; left: 32%; transform: rotate(-4deg); }
+        .polaroid:nth-child(20) { top: 87%; left: 72%; transform: rotate(5deg); }
+        .polaroid:nth-child(21) { top: 94%; left: 15%; transform: rotate(-3deg); }
 
         @media (max-width: 768px) {
             .hero h1 {
@@ -654,7 +714,7 @@
             const div = document.createElement('div');
             div.className = 'polaroid';
             if (isMobile()) {
-                const topPct = 2 + i * mobileStep();
+                const topPct = 14 + i * mobileStep();
                 div.style.top = topPct + '%';
                 div.style.left = `calc(50% - ${mobileWidth()}px)`;
             }
@@ -665,6 +725,25 @@
             div.addEventListener('click', () => pedirCodigo(nino));
             container.appendChild(div);
         });
+
+        // ============ POLAROID PANORÁMICA ============
+        const panDiv = document.createElement('div');
+        panDiv.className = 'polaroid-panoramica';
+        panDiv.style.top = '2%';
+        panDiv.style.left = 'calc(50% - 290px)';
+        panDiv.style.transform = 'rotate(-1deg)';
+        panDiv.innerHTML = `
+            <img src="galeria/panoramika_k1.jpg" alt="Grupo Graduación 2026">
+            <div class="caption">Generación 2026</div>
+        `;
+        panDiv.addEventListener('click', () => {
+            lightboxFotos = ["panoramika_k1.jpg"];
+            lightboxIdx = 0;
+            lightboxImg.src = "galeria/panoramika_k1.jpg";
+            lightbox.classList.add('active');
+            gsap.from(lightboxImg, { scale: 0.3, opacity: 0, duration: 0.6, ease: "back.out(1.7)" });
+        });
+        container.appendChild(panDiv);
 
         // Ajustar altura del contenedor según pantalla
         function ajustarAlturaContainer() {
@@ -679,9 +758,21 @@
         window.addEventListener('resize', () => {
             ajustarAlturaContainer();
             const mobile = isMobile();
+            const pan = document.querySelector('.polaroid-panoramica');
+            if (pan) {
+                if (mobile) {
+                    pan.style.top = '1%';
+                    pan.style.left = `calc(50% - ${window.innerWidth <= 480 ? 140 : 170}px)`;
+                    pan.style.transform = 'rotate(0deg)';
+                } else {
+                    pan.style.top = '2%';
+                    pan.style.left = 'calc(50% - 290px)';
+                    pan.style.transform = 'rotate(-1deg)';
+                }
+            }
             document.querySelectorAll('.polaroid').forEach((p, i) => {
                 if (mobile) {
-                    p.style.top = (2 + i * mobileStep()) + '%';
+                    p.style.top = (14 + i * mobileStep()) + '%';
                     p.style.left = `calc(50% - ${mobileWidth()}px)`;
                 } else {
                     p.style.top = '';
